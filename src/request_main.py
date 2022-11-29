@@ -54,36 +54,11 @@ def door_close():
                               "needSalesInfo": "true"}, verify=False)
     json_data = json.loads(res.text)
     logger.info(f'[{log_time} | LET\'s INFER]' + '\n' + str(json_data))
-    # if json.loads(res.text)['resultCode'] == '000':
-    #     order_list = json.loads(res.text)['data']['orderList']
-    #     ln = len(order_list)
-    #     if ln > 0:
-    #         for i in range(0, ln):
-    #             orders = order_list[i]
-    #             NAME = orders['goodsName']
-    #             BC = orders['goodsId']
-    #             QTY = int(orders['goodsCnt'])
-    #             dic = {"barcode": BC, "count": QTY}
-    #             if QTY > 0: sender.append(dic)
-    #         data = {"companyId": "0001", "storeId": "PTY_0001", "orderId": tdr_time, "items": sender}
-    #         phase_res = requests.post('http://phasecommu.synology.me:3535/api/price', json=data, verify=False, timeout=30)
-    #         logger.info(f'[{log_time} | Phase price Res]' + '\n' + str(phase_res.text))
-    #         if json.loads(phase_res.text)["status"] == "200":
-    #             items = json.loads(phase_res.text)["items"]
-    #             rd.set('ol', json.dumps(items))
-    #             rd.set('msg', 'cal')
-    #             data_2 = {"companyId": "0001", "storeId": "PTY_0001", "orderId": tdr_time, "items": items}
-    #             phase_res_2 = requests.post('http://phasecommu.synology.me:3535/api/order', json=data_2, verify=False, timeout=30)
-    #             logger.info(f'[{log_time} | Phase order Res]' + '\n' + str(phase_res_2.text))
-    #         else:
-    #             rd.set('msg', '003')
-    #
-    #     elif ln == 0:
-    #         rd.set('msg', 'end_none')
-    # else:
-    #     rd.set('msg', '003')
-    #     logger.info(f'[{log_time} | INF FAIL]')
-    #     logger.info(res.text)
+    if len(str(json.loads(res.text)['resultCode'])) > 0:
+        rd.set('msg', 'door_close')
+    else:
+        logger.info(f'[{log_time} | INF FAIL]')
+        logger.info(res.text)
 
 # 관리자 문열림
 def admin_open():

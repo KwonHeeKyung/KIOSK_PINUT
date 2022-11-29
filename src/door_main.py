@@ -60,8 +60,6 @@ while True:
             elif door == b'customer':
                 logger.info(f'[{log_time} | DOOR_CLOSE --> CLIENT]')
                 rd.delete('door')
-                # rd.set("msg",'infer')
-                rd.set('msg','door_close')
                 if rd.get('err_type') is not None:
                     request_main.release_err()
                 request_main.door_close()

@@ -29,7 +29,7 @@ while True:
             Arduino.write(str('1').encode('utf-8'))
             rd.set('door', 'customer')
             logger.info(f'[{log_time} | DOOR_OPEN --> CLIENT]')
-            request_main.door_open()
+            # request_main.door_open()
 
         #100초 알림
         elif door == b'customer' or door == b'admin_open':
@@ -50,19 +50,21 @@ while True:
         if door == b'admin':
             Arduino.write(str('1').encode('utf-8'))
             rd.set('door', 'admin_open')
-            request_main.admin_open()
+            # request_main.admin_open()
         #문닫힘
         if uno == b'0\r\n':
             #관리자 권한
             if door == b'admin_open':
-                request_main.admin_close()
+                pass #임시
+                # request_main.admin_close()
             #고객
             elif door == b'customer':
                 logger.info(f'[{log_time} | DOOR_CLOSE --> CLIENT]')
                 rd.delete('door')
+                rd.set('msg', 'door_close')
                 if rd.get('err_type') is not None:
                     request_main.release_err()
-                request_main.door_close()
+                # request_main.door_close()
         #문여닫힘 에러
         if uno == b'2\r':
             rd.set('err_type','except')

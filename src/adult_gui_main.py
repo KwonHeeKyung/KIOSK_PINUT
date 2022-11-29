@@ -86,7 +86,8 @@ class Uipage:
             pass
         elif flg == b'start':
             if 75 < event.x < 530 and 795 < event.y < 905:
-                request_main.check_status()
+                self.rd.set('msg', '000') #임시
+                # request_main.check_status()
         elif flg == b'auth_adult':
             if 75 < event.x < 530 and 795 < event.y < 905:
                 self.START_PAGE()

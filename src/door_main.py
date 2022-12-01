@@ -55,7 +55,7 @@ while True:
         if uno == b'0\r\n':
             #관리자 권한
             if door == b'admin_open':
-                pass #임시
+                rd.set('msg', 'admin_close') #임시
                 # request_main.admin_close()
             #고객
             elif door == b'customer':

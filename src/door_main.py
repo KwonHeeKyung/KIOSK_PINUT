@@ -62,8 +62,8 @@ while True:
                 logger.info(f'[{log_time} | DOOR_CLOSE --> CLIENT]')
                 rd.delete('door')
                 rd.set('msg', 'door_close')
-                if rd.get('err_type') is not None:
-                    request_main.release_err()
+                # if rd.get('err_type') is not None:
+                #     request_main.release_err()
                 # request_main.door_close()
         #문여닫힘 에러
         if uno == b'2\r':

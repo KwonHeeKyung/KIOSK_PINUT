@@ -32,20 +32,20 @@ while True:
             # request_main.door_open()
 
         #100초 알림
-        elif door == b'customer' or door == b'admin_open':
-            cnt += 1
-            if cnt > 3000:
-                logger.info(log_time)
-                if door == b'customer':
-                    playsound(cf_path + 'voice/' + "long.mp3", False)
-                    rd.set('err_type', 'long')
-                    request_main.device_err()
-                    cnt = 0
-                elif door == b'admin_open':
-                    playsound(cf_path + 'voice/' + "longlong.mp3", False)
-                    cnt = 0
-        else:
-            cnt = 0
+        # elif door == b'customer' or door == b'admin_open':
+        #     cnt += 1
+        #     if cnt > 3000:
+        #         logger.info(log_time)
+        #         if door == b'customer':
+        #             playsound(cf_path + 'voice/' + "long.mp3", False)
+        #             rd.set('err_type', 'long')
+        #             request_main.device_err()
+        #             cnt = 0
+        #         elif door == b'admin_open':
+        #             playsound(cf_path + 'voice/' + "longlong.mp3", False)
+        #             cnt = 0
+        # else:
+        #     cnt = 0
         #관리자 문열림
         if door == b'admin':
             Arduino.write(str('1').encode('utf-8'))

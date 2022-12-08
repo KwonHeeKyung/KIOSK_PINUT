@@ -32,6 +32,9 @@ def auth_phase(auth_type):
     elif json.loads(res.text)["resultCode"] == "-403":
         rd.set('msg', 'auth_first')
         logger.info(f'[{log_time} | Adult Auth Fail]' + '\n' + str(res.text))
+    elif json.loads(res.text)["resultCode"] == "-405":
+        rd.set('msg', 'auth_fail_1')
+        logger.info(f'[{log_time} | Adult Auth Fail]' + '\n' + str(res.text))
     else:
         rd.set('msg', 'auth_fail')
         logger.info(f'[{log_time} | Adult Auth Fail]' + '\n' + str(res.text))

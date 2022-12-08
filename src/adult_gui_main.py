@@ -23,6 +23,7 @@ class Uipage:
         self.auth_adult_img = PhotoImage(file=self.cf_path + 'asset/AUTH_ADULT.png')
         self.auth_first_img = PhotoImage(file=self.cf_path + 'asset/AUTH_FIRST.png')
         self.auth_fail_img = PhotoImage(file=self.cf_path + 'asset/AUTH_FAIL.png')
+        self.auth_fail_1_img = PhotoImage(file=self.cf_path + 'asset/AUTH_FAIL1.png')
         self.shop_img = PhotoImage(file=self.cf_path + 'asset/SHOPPING.png')
         self.device_err_img = PhotoImage(file=self.cf_path + 'asset/DEVICE_ERR.png')
         self.fail_img = PhotoImage(file=self.cf_path + 'asset/DEVICE_FAIL.png')
@@ -50,7 +51,7 @@ class Uipage:
             pass
         elif page_timer == b'auth_adult':
             self.cnt += 1
-            if self.cnt >= 1000:
+            if self.cnt >= 300:
                 self.cnt = 0
                 self.START_PAGE()
                 return
@@ -61,6 +62,12 @@ class Uipage:
                 self.START_PAGE()
                 return
         elif page_timer == b'auth_fail':
+            self.cnt += 1
+            if self.cnt == 30:
+                self.cnt = 0
+                self.START_PAGE()
+                return
+        elif page_timer == b'auth_fail_1':
             self.cnt += 1
             if self.cnt == 30:
                 self.cnt = 0
@@ -81,6 +88,7 @@ class Uipage:
 
     # 터치 버튼 이벤트
     def S_BTN(self, event):
+        self.playWav('touch')
         flg = self.rd.get('nowPage')
         if flg == None:
             pass
@@ -95,6 +103,9 @@ class Uipage:
             if 75 < event.x < 530 and 795 < event.y < 905:
                 self.START_PAGE()
         elif flg == b'auth_fail':
+            if 75 < event.x < 530 and 795 < event.y < 905:
+                self.START_PAGE()
+        elif flg == b'auth_fail_1':
             if 75 < event.x < 530 and 795 < event.y < 905:
                 self.START_PAGE()
 
@@ -116,13 +127,22 @@ class Uipage:
     def AUTH_FIRST(self):
         self.rd.set('nowPage', 'auth_first')
         self.canvas.create_image(0, 0, anchor=NW, image=self.auth_first_img)
-        self.comeback()
+        # self.comeback()
+        self.cnt = 0
 
     # 성인 인증 실패
     def AUTH_FAIL(self):
         self.rd.set('nowPage', 'auth_fail')
         self.canvas.create_image(0, 0, anchor=NW, image=self.auth_fail_img)
-        self.comeback()
+        # self.comeback()
+        self.cnt = 0
+
+    # 다른 QR로 인한 성인 인증 실패
+    def AUTH_FAIL_1(self):
+        self.rd.set('nowPage', 'auth_fail_1')
+        self.canvas.create_image(0, 0, anchor=NW, image=self.auth_fail_1_img)
+        # self.comeback()
+        self.cnt = 0
 
     # 문열리고 쇼핑시작
     def SHOPPING_PAGE(self):
@@ -133,7 +153,8 @@ class Uipage:
     def FAIL_PAGE(self):
         self.rd.set('nowPage', 'fail')
         self.canvas.create_image(0, 0, anchor=NW, image=self.fail_img)
-        self.comeback()
+        # self.comeback()
+        self.cnt = 0
 
     # 키오스크 장치 오류
     def DEVICE_ERR_PAGE(self):
@@ -177,6 +198,11 @@ class Uipage:
 
             elif msg == b'auth_fail':
                 self.AUTH_FAIL()
+                self.playWav('auth_fail')
+                self.rd.delete("msg")
+
+            elif msg == b'auth_fail_1':
+                self.AUTH_FAIL_1()
                 self.playWav('auth_fail')
                 self.rd.delete("msg")
 

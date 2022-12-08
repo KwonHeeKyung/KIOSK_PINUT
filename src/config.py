@@ -11,6 +11,6 @@ network_info = {
     'raspberry_base_url': 'http://192.168.36.10:5000/',
     'server_request_url': 'https://devops.interminds-sr.com:5000/'
 }
-path = {'path': 'C:/Users/kwon/Desktop/KIOSK/KIOSK_PINUT/'}
+path = {'path': 'C:/Users/kwon/Desktop/KIOSK/KIOSK_PNUTS/'}
 
 

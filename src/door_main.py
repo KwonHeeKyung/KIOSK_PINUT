@@ -46,7 +46,7 @@ while True:
     log_time = log_time.strftime("%Y-%m-%d-%H:%M:%S")
     door = rd.get('door')
     try:
-        uno = Arduino.readline()
+        uno = Arduino.readline().decode('utf-8').rstrip()
         #문열림
         if door == b'open':
             Arduino.write(str('1').encode('utf-8'))
@@ -63,7 +63,7 @@ while True:
             alarm()
 
         #문닫힘
-        if uno == b'0\r\n':
+        if uno == '0':
             #관리자 권한
             if door == b'admin_open':
                 request_main.admin_close()
@@ -74,7 +74,7 @@ while True:
                 # rd.set('msg', 'door_close')
                 request_main.door_close()
         #문여닫힘 에러
-        if uno == b'2\r':
+        if uno == '2':
             rd.set('err_type','except')
             request_main.device_err()
             logger.info(f'[{log_time} | DOOR LOCK ERR]')

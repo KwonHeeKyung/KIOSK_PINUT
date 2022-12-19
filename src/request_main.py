@@ -23,7 +23,7 @@ rd = redis.StrictRedis(host='localhost', port=6379, db=0)
 msg = rd.get('msg')
 
 # 상태조회
-def check_status():
+def check_status(type=0):
     log_time = datetime.datetime.now()
     log_time = log_time.strftime("%Y-%m-%d-%H:%M:%S")
     res = requests.post(f'{cf_master_server}check_status_sbc',
@@ -32,7 +32,11 @@ def check_status():
     json_data = json.loads(res.text)
     result_code = str(json_data['resultCode'])
     if result_code == '000':
-        rd.set('msg', '000')
+        if type == 1: # START에서 바로 QR찍고 넘어왔을때
+            rd.set('msg', '002')
+            rd.set('door', 'open')
+        else:
+            rd.set('msg', '000')
         logger.info(f'[{log_time} | check_status_sbc]' + '\n' + str(res.text))
     else:
         rd.set('msg', '001')
@@ -54,7 +58,7 @@ def door_close():
                               "needSalesInfo": "true"}, verify=False)
     json_data = json.loads(res.text)
     logger.info(f'[{log_time} | LET\'s INFER]' + '\n' + str(json_data))
-    if len(str(json.loads(res.text)['resultCode'])) > 0:
+    if str(json.loads(res.text)['resultCode']) == '000':
         rd.set('msg', 'door_close')
     else:
         logger.info(f'[{log_time} | INF FAIL]')

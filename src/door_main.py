@@ -1,5 +1,7 @@
 # Made by Kim.Seung.Hwan / ksana1215@interminds.ai
 # -*- coding: utf-8 -*-
+import threading
+
 import serial
 import redis
 import logging
@@ -18,6 +20,27 @@ logging.basicConfig(filename=cf_path+'kiosk_status.log',level=logging.DEBUG)
 logger = logging.getLogger('UNO_LOG')
 cnt = 0
 
+def alarm():
+    status = rd.get('door')
+    global cnt
+    if status == b'customer' or status == b'admin_open':
+        cnt += 1
+        if cnt > 600:
+            logger.info(log_time)
+            if status == b'customer':
+                playsound(cf_path + 'voice/' + "long.mp3", False)
+                rd.set('err_type', 'long')
+                request_main.device_err()
+                cnt = 0
+            elif status == b'admin_open':
+                playsound(cf_path + 'voice/' + "longlong.mp3", False)
+                cnt = 0
+
+        threading.Timer(1, alarm).start()
+    else:
+        cnt = 0
+        return
+
 while True:
     log_time = datetime.datetime.now()
     log_time = log_time.strftime("%Y-%m-%d-%H:%M:%S")
@@ -29,42 +52,27 @@ while True:
             Arduino.write(str('1').encode('utf-8'))
             rd.set('door', 'customer')
             logger.info(f'[{log_time} | DOOR_OPEN --> CLIENT]')
-            # request_main.door_open()
+            request_main.door_open()
+            alarm()
 
-        #100초 알림
-        # elif door == b'customer' or door == b'admin_open':
-        #     cnt += 1
-        #     if cnt > 3000:
-        #         logger.info(log_time)
-        #         if door == b'customer':
-        #             playsound(cf_path + 'voice/' + "long.mp3", False)
-        #             rd.set('err_type', 'long')
-        #             request_main.device_err()
-        #             cnt = 0
-        #         elif door == b'admin_open':
-        #             playsound(cf_path + 'voice/' + "longlong.mp3", False)
-        #             cnt = 0
-        # else:
-        #     cnt = 0
         #관리자 문열림
         if door == b'admin':
             Arduino.write(str('1').encode('utf-8'))
             rd.set('door', 'admin_open')
-            # request_main.admin_open()
+            request_main.admin_open()
+            alarm()
+
         #문닫힘
         if uno == b'0\r\n':
             #관리자 권한
             if door == b'admin_open':
-                rd.set('msg', 'admin_close') #임시
-                # request_main.admin_close()
+                request_main.admin_close()
             #고객
             elif door == b'customer':
                 logger.info(f'[{log_time} | DOOR_CLOSE --> CLIENT]')
                 rd.delete('door')
-                rd.set('msg', 'door_close')
-                # if rd.get('err_type') is not None:
-                #     request_main.release_err()
-                # request_main.door_close()
+                # rd.set('msg', 'door_close')
+                request_main.door_close()
         #문여닫힘 에러
         if uno == b'2\r':
             rd.set('err_type','except')
@@ -73,6 +81,7 @@ while True:
     except Exception as err:
         rd.set('err_type', 'except')
         rd.set('msg', 'device_err')
+        rd.delete('door')
         request_main.device_err()
         logger.info(f'[{log_time} | ARDUINO FAIL]' + '\n' + str(err))
         break

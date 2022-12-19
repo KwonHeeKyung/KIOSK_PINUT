@@ -28,6 +28,7 @@ class Uipage:
         self.device_err_img = PhotoImage(file=self.cf_path + 'asset/DEVICE_ERR.png')
         self.fail_img = PhotoImage(file=self.cf_path + 'asset/DEVICE_FAIL.png')
         self.admin_img = PhotoImage(file=self.cf_path + 'asset/ADMIN.png')
+        self.loading_img = PhotoImage(file=self.cf_path + 'asset/LOADING.png')
         self.canvas.bind("<Button-1>", self.S_BTN)
         self.readRedis()
         self.rd.flushdb()
@@ -93,12 +94,12 @@ class Uipage:
         if flg == None:
             pass
         elif flg == b'start':
-            if 75 < event.x < 530 and 795 < event.y < 905:
-                self.rd.set('msg', '000') #임시
-                # request_main.check_status()
-        elif flg == b'auth_adult':
-            if 75 < event.x < 530 and 795 < event.y < 905:
-                self.START_PAGE()
+            if 75 < event.x < 530 and 710 < event.y < 820:
+                self.canvas.create_image(0, 0, anchor=NW, image=self.loading_img)
+                request_main.check_status()
+        # elif flg == b'auth_adult':
+        #     if 75 < event.x < 530 and 795 < event.y < 905:
+        #         self.START_PAGE()
         elif flg == b'auth_first':
             if 75 < event.x < 530 and 795 < event.y < 905:
                 self.START_PAGE()
@@ -121,27 +122,27 @@ class Uipage:
     def AUTH_ADULT(self):
         self.rd.set('nowPage', 'auth_adult')
         self.canvas.create_image(0, 0, anchor=NW, image=self.auth_adult_img)
-        self.comeback()
+        # self.comeback()
 
     # 카카오 지갑 첫 시도
     def AUTH_FIRST(self):
         self.rd.set('nowPage', 'auth_first')
         self.canvas.create_image(0, 0, anchor=NW, image=self.auth_first_img)
-        # self.comeback()
+        self.comeback()
         self.cnt = 0
 
     # 성인 인증 실패
     def AUTH_FAIL(self):
         self.rd.set('nowPage', 'auth_fail')
         self.canvas.create_image(0, 0, anchor=NW, image=self.auth_fail_img)
-        # self.comeback()
+        self.comeback()
         self.cnt = 0
 
     # 다른 QR로 인한 성인 인증 실패
     def AUTH_FAIL_1(self):
         self.rd.set('nowPage', 'auth_fail_1')
         self.canvas.create_image(0, 0, anchor=NW, image=self.auth_fail_1_img)
-        # self.comeback()
+        self.comeback()
         self.cnt = 0
 
     # 문열리고 쇼핑시작
@@ -153,7 +154,7 @@ class Uipage:
     def FAIL_PAGE(self):
         self.rd.set('nowPage', 'fail')
         self.canvas.create_image(0, 0, anchor=NW, image=self.fail_img)
-        # self.comeback()
+        self.comeback()
         self.cnt = 0
 
     # 키오스크 장치 오류
@@ -179,8 +180,14 @@ class Uipage:
 
             elif msg == b'000':
                 self.AUTH_ADULT()
+                self.comeback()
                 self.playWav('auth_kakao')
                 self.rd.delete('msg')
+
+            elif msg == b'002':
+                self.SHOPPING_PAGE()
+                self.playWav('shopping')
+                self.rd.delete("msg")
 
             elif msg == b'auth_first':
                 self.AUTH_FIRST()
@@ -224,6 +231,10 @@ class Uipage:
             elif msg == b'door_close':
                 self.START_PAGE()
                 self.playWav('door_close')
+                self.rd.delete('msg')
+
+            elif msg == b'loading':
+                self.canvas.create_image(0, 0, anchor=NW, image=self.loading_img)
                 self.rd.delete('msg')
 
         except Exception as ex:

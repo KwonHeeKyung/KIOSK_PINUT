@@ -46,7 +46,7 @@ while True:
     log_time = log_time.strftime("%Y-%m-%d-%H:%M:%S")
     door = rd.get('door')
     try:
-        uno = Arduino.readline().decode('utf-8').rstrip()
+        uno = str(Arduino.readline().decode('utf-8').rstrip())
         #문열림
         if door == b'open':
             Arduino.write(str('1').encode('utf-8'))

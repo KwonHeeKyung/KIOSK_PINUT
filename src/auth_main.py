@@ -22,20 +22,16 @@ logging.getLogger("urllib3").setLevel(logging.WARNING)
 logging.basicConfig(filename=cf_path + 'kiosk_status.log', level=logging.DEBUG)
 logger = logging.getLogger('QRC_LOG')
 
-# phase_storeId = 'is00000002'
-# phase_storeId = 's_00001'
-
-def auth_phase(auth_type, page):
+def auth_phase(auth_type):
     data = {'companyId': cf_company_id, 'storeId': cf_store_id, 'orderId': auth_time, 'type': auth_type,
             'barcode': barcode}
-    # data = {'companyId': '0001', 'storeId': 'PTY_0001', 'orderId': auth_time, 'type': auth_type,
-    #         'barcode': barcode}
     res = requests.post('http://phasecommu.synology.me:3535/api/adult', json=data, verify=False, timeout=30)
     if json.loads(res.text)["resultCode"] == "200":
         logger.info(f'[{log_time} | Adult Auth Success]' + '\n' + str(res.text))
-        if page == b'start':
+        point = rd.get('auth_point')
+        if point == b'start':
             request_main.check_status(1)
-        elif page == b'auth_adult':
+        elif point == b'auth_adult':
             rd.set('door', 'open')
             rd.set('msg', 'shopping')
     elif json.loads(res.text)["resultCode"] == "-403":
@@ -62,10 +58,16 @@ while True:
             rd.set('msg', 'admin')
             rd.set('door', 'admin')
         elif len(barcode) > 0 and page == b'auth_adult':
-            auth_phase('1', page)
+            rd.set('auth_point', 'auth_adult')
+            auth_phase('1')
+        elif len(barcode) > 0 and page == b'auth_first':
+            auth_phase('1')
+        elif len(barcode) > 0 and page == b'auth_fail_1':
+            auth_phase('1')
         elif len(barcode) > 0 and page == b'start':
             rd.set('msg', 'loading')
-            auth_phase('1', page)
+            rd.set('auth_point', 'start')
+            auth_phase('1')
 
     except Exception as err:
         rd.set('err_type', 'except')

@@ -1,5 +1,7 @@
 # Made by Kim.Seung.Hwan / ksana1215@interminds.ai
 # -*- coding: utf-8 -*-
+import os
+import time
 import serial
 import redis
 import json
@@ -74,4 +76,5 @@ while True:
         rd.set('msg', 'device_err')
         request_main.device_err()
         logger.info(f'[{log_time} | SCANNER FAIL]' + '\n' + str(err))
-        break
+        time.sleep(10)
+        os.system('start.sh')

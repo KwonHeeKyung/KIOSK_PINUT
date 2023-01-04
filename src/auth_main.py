@@ -27,10 +27,11 @@ logger = logging.getLogger('QRC_LOG')
 def auth_phase(auth_type):
     data = {'companyId': cf_company_id, 'storeId': cf_store_id, 'orderId': auth_time, 'type': auth_type,
             'barcode': barcode}
-    res = requests.post('http://phasecommu.synology.me:3535/api/adult', json=data, verify=False, timeout=30)
+    res = requests.post('http://phasecommu.synology.me:3535/api/adult2', json=data, verify=False, timeout=30)
     if json.loads(res.text)["resultCode"] == "200":
         logger.info(f'[{log_time} | Adult Auth Success]' + '\n' + str(res.text))
         point = rd.get('auth_point')
+        rd.set('oid', str(json.loads(res.text)["orderId"]))
         if point == b'start':
             request_main.check_status(1)
         elif point == b'auth_adult':
@@ -77,4 +78,4 @@ while True:
         request_main.device_err()
         logger.info(f'[{log_time} | SCANNER FAIL]' + '\n' + str(err))
         time.sleep(10)
-        os.system('start.sh')
+        os.system(cf_path + 'start.sh')

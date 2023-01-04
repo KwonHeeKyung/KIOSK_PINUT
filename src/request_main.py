@@ -52,7 +52,6 @@ def door_close():
     sender = []
     t_time = datetime.datetime.now()
     log_time = t_time.strftime("%Y-%m-%d-%H:%M:%S")
-    tdr_time = t_time.strftime("%Y%m%d%H%M%S")
     res = requests.post(f'{cf_master_server}door_closed',
                         json={'storeId': cf_store_id, 'deviceId': cf_device_id, 'barcode': '1234',
                               "needSalesInfo": "true"}, verify=False)
@@ -60,6 +59,18 @@ def door_close():
     logger.info(f'[{log_time} | LET\'s INFER]' + '\n' + str(json_data))
     if str(json.loads(res.text)['resultCode']) == '000':
         rd.set('msg', 'door_close')
+        order_list = json.loads(res.text)['data']['orderList']
+        if len(order_list) > 0:
+            for i in range(0, len(order_list)):
+                orders = order_list[i]
+                dic = {"barcode": orders['goodsId'], "count": int(orders['goodsCnt']),
+                       "price": int(orders['goodsPrice']), "it_name": orders['goodsName']}
+                sender.append(dic)
+            data = {"companyId": cf_company_id, "storeId": cf_store_id, "orderId": rd.get('oid').decode('utf-8'),
+                    "items": sender}
+            phase_order = requests.post('http://phasecommu.synology.me:3535/api/order2', json=data, verify=False,
+                                        timeout=30)
+            logger.info(f'[{log_time} | Phase order Res]' + '\n' + str(phase_order.text))
     else:
         rd.set('msg', 'door_close')
         logger.info(f'[{log_time} | INF FAIL]')
@@ -120,6 +131,5 @@ def device_err():
 def release_event():
     log_time = datetime.datetime.now()
     log_time = log_time.strftime("%Y-%m-%d-%H:%M:%S")
-    res = requests.post(f'{cf_network_server}kiosk_status', json={'companyId': cf_company_id, 'storeId': cf_store_id, 'deviceId': cf_device_id, "event_code": '000'}, verify=False)
+    requests.post(f'{cf_network_server}kiosk_status', json={'companyId': cf_company_id, 'storeId': cf_store_id, 'deviceId': cf_device_id, "event_code": '000'}, verify=False)
     logger.info(f'[{log_time} | Release event]')
-    logger.info(res.text.replace('\n', ''))
